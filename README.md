@@ -18,13 +18,12 @@ Role Name
       1. обработать логи из test.log (разделить строку на следующие поля: Time, Priority, Logger, RandomNumber, RandomSymbol Message)
       2. из логов контейнера filebeat: убрать лишние поля (log.file.path, prospector.type, docker.container.id, docker.container.image); переименовать: host.name => host, message => Message; добавить в tags значение из docker.container.name (убрать соответвенно docker.container.name)
    3. в output логи из test.log отправить в ElasticSearch в индекс test-%Y.%m.%d, а логи файлбита записать в файл logstash-output.log
-5. В ElasticSearch подготоваить template для индекса test-* для 6.7.2 и 7.7.0 версий
+5. **TODO** В ElasticSearch подготоваить template для индекса test-* для 6.7.2 и 7.7.0 версий
 6. В Kibana:
    1. сохранить поисковый запрос по индексу test-* за последние 12 часов, где выведены все поля, обработанные в Logstash
    2. создать визуализацию, в которой указывается кол-во документов для каждого значения поля Priority
    3. такую же визуализацию, но уже для поля Logger
    4. создать dashboard, в котором будут отображаться все выше перечисленные запросы и визуализации
-
 
 Requirements
 ------------

@@ -4,5 +4,4 @@
   gather_facts: false
   become: true
   roles:
-    # - ELKF
     - { role: elkf, message: "testing message" }

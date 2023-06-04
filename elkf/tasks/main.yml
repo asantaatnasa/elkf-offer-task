@@ -12,11 +12,13 @@
     state: directory
   with_dict: "{{ config_files_basedirs }}"
 
+# TODO: set explicit permissions
 - name: Copy test.log file on system
   ansible.builtin.copy:
     src: test.log
     dest: /usr/share/filebeat/data/test.log
 
+# TODO: set explicit permissions
 - name: Create ELKF stack config files from templates
   ansible.builtin.template:
     src: "{{ item.value.src }}"
@@ -39,9 +41,10 @@
     user: "{{ item.value.user | default(omit) }}"
   with_dict: "{{ containers }}"
 
-# - name: Wait for startup (60 sec)
-#   ansible.builtin.wait_for:
-#     timeout: 60
+# TODO: fix this, better use some handler or test to ensure startup
+- name: Wait for startup (2 min)
+  ansible.builtin.wait_for:
+    timeout: 120
 
 - name: POST set up index in kibana
   ansible.builtin.uri:
@@ -55,3 +58,13 @@
       attributes:
         title: "test-*"
         timeFieldName: "@timestamp"
+
+- name: POST import saved dashboard
+  ansible.builtin.uri:
+    url: "http://{{ ansible_host }}:5601/api/kibana/dashboards/import"
+    method: POST
+    body_format: json
+    headers:
+      Content-Type: application/json
+      kbn-xsrf: true
+    src: kibana-dashboard.json

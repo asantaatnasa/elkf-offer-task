@@ -25,8 +25,15 @@ filter {
 }
 
 output {
-  elasticsearch {
-    hosts => "http://{{ containers.elastic.name }}:9200"
-    index => "test-%{+YYYY.MM.dd}"
-  }
+   if [input][type] == "container" {
+      file {
+         path => "/usr/share/logstash/logs/logstash-output.log"
+      }
+   }
+   if [input][type] == "log" { 
+      elasticsearch { 
+         hosts => "http://{{ containers.elastic.name }}:9200" 
+         index => "test-%{+YYYY.MM.dd}"
+      }
+   }  
 }

@@ -40,7 +40,8 @@ containers:
     volumes:
       - /usr/share/logstash/pipeline/logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
       - /usr/share/logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
-    # TODO: add data directories
+      # TODO: mount data directory to export data from container on host
+      # TODO: add data directories
     ports:
       - "9600:9600"
       - "5044:5044"
