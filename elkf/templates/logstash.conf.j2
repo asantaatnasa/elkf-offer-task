@@ -13,8 +13,13 @@ filter {
     }
   }
   if [input][type] == "container" {
-    alter {
-      remove_field => [ "log.file.path", "container.id" ]
+    mutate {
+      add_tag => [ "[container][name]" ] 
+      remove_field => [ "[log][file][path]", "[container][id]", "[container][image][name]", "[container][name]" ]
+      rename => {
+        "[host][name]" => "host"
+        "message" => "Message"
+      }
     }
   }
 }
