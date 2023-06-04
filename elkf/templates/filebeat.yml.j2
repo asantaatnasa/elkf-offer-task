@@ -1,0 +1,24 @@
+filebeat.inputs:
+- type: log
+  paths:
+    - "/usr/share/filebeat/data/test.log"
+
+filebeat.autodiscover:
+  providers:
+    - type: docker
+      templates:
+        - condition:
+            contains:
+              docker.container.name: {{ containers.filebeat.name }}
+          config:
+            - type: container
+              paths:
+                - /var/lib/docker/containers/${data.docker.container.id}/*.log
+
+{% if containers.filebeat.to_file is defined and to_file is sameas true %}
+output.file:
+  path: '/usr/share/filebeat/logs'
+{% else %}
+output.logstash:
+  hosts: ["{{ containers.logstash.name }}:5400"]
+{% endif %}

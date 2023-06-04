@@ -1,0 +1,66 @@
+---
+# vars file for ELKF
+version: 7.7.0
+
+docker_network_name: elastic
+
+config_files_basedirs:
+  test_log: "/usr/share/filebeat/data/"
+  filebeat: "/usr/share/filebeat/"
+  logstash_conf: "/usr/share/logstash/pipeline/"
+  logstash_yml: "/usr/share/logstash/config/"
+
+config_files_templates:
+  filebeat:
+    src: "filebeat.yml.j2"
+    dest: "{{ config_files_basedirs.filebeat }}filebeat.yml"
+  logstash_conf:
+    src: "logstash.conf.j2"
+    dest: "{{ config_files_basedirs.logstash_conf }}logstash.conf"
+  logstash_yml:
+    src: "logstash.yml.j2"
+    dest: "{{ config_files_basedirs.logstash_yml }}logstash.yml"
+
+containers:
+  filebeat:
+    name: "filebeat"
+    image: "elastic/filebeat:{{ version }}"
+    volumes:
+      - /usr/share/filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - /usr/share/filebeat/data/test.log:/usr/share/filebeat/data/test.log:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    env:
+      setup.kibana.host: "kibana770:5601"
+    to_file: false
+    user: root # FIXME: needed for docker.sock permisions
+  logstash:
+    name: "logstash"
+    image: "logstash:{{ version }}"
+    volumes:
+      - /usr/share/logstash/pipeline/logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
+      - /usr/share/logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
+    # TODO: add data directories
+    ports:
+      - "9600:9600"
+      - "5044:5044"
+      - "5400:5400"
+    env:
+      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+      ELASTICSEARCH_HOSTS: "http://elastic:9200"
+  elastic:
+    name: "elastic"
+    image: "elasticsearch:{{ version }}"
+    ports:
+      - "9300:9300"
+      - "9200:9200"
+    env:
+      discovery.type: "single-node"
+      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
+  kibana:
+    name: "kibana"
+    image: "kibana:{{ version }}"
+    ports:
+      - "5601:5601"
+    env:
+      ELASTICSEARCH_HOSTS: "http://elastic:9200"

@@ -1,0 +1,11 @@
+input {
+  beats {
+    port => 5400
+  }
+}
+
+output {
+  elasticsearch {
+    hosts => "http://{{ containers.elastic.name }}:9200"
+  }
+}

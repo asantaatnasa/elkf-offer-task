@@ -1,0 +1,40 @@
+---
+# tasks file for ELKF
+# - name: Testing
+#   ansible.builtin.debug:
+#     var: "{{ item }}"
+#   with_dict: "{{ containers }}"
+
+- name: Ensure needed direcotries exists
+  ansible.builtin.file:
+    path: "{{ item.value }}"
+    recurse: true
+    state: directory
+  with_dict: "{{ config_files_basedirs }}"
+
+- name: Copy test.log file on system
+  ansible.builtin.copy:
+    src: test.log
+    dest: /usr/share/filebeat/data/test.log
+
+- name: Create ELKF stack config files from templates
+  ansible.builtin.template:
+    src: "{{ item.value.src }}"
+    dest: "{{ item.value.dest }}"
+  with_dict: "{{ config_files_templates }}"
+
+- name: Create docker network for ELKF stack
+  community.docker.docker_network:
+    name: "{{ docker_network_name }}"
+
+- name: Startup ELKF stack containers
+  community.docker.docker_container:
+    name: "{{ item.value.name }}"
+    image: "{{ item.value.image }}"
+    networks:
+      - name: "{{ docker_network_name }}"
+    ports: "{{ item.value.ports | default(omit) }}"
+    volumes: "{{ item.value.volumes | default(omit) }}"
+    env: "{{ item.value.env | default(omit) }}"
+    user: "{{ item.value.user | default(omit) }}"
+  with_dict: "{{ containers }}"

@@ -1,0 +1,8 @@
+---
+- name: Install and configure ELKF stack
+  hosts: all
+  gather_facts: false
+  become: true
+  roles:
+    # - ELKF
+    - { role: elkf, message: "testing message" }
