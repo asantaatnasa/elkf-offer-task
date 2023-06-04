@@ -4,6 +4,16 @@ input {
   }
 }
 
+filter {
+  if [input][type] == "log" {
+    dissect {
+      mapping => {
+        "message" => "%{Time} %{+Time} %{Priority} %{Logger} %{RandomNumber} %{RandomSymbol} %{Message}"
+      }
+    }
+  }
+}
+
 output {
   elasticsearch {
     hosts => "http://{{ containers.elastic.name }}:9200"
