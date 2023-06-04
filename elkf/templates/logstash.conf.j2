@@ -12,6 +12,11 @@ filter {
       }
     }
   }
+  if [input][type] == "container" {
+    alter {
+      remove_field => [ "log.file.path", "container.id" ]
+    }
+  }
 }
 
 output {
