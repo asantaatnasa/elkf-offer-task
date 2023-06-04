@@ -38,3 +38,20 @@
     env: "{{ item.value.env | default(omit) }}"
     user: "{{ item.value.user | default(omit) }}"
   with_dict: "{{ containers }}"
+
+# - name: Wait for startup (60 sec)
+#   ansible.builtin.wait_for:
+#     timeout: 60
+
+- name: POST set up index in kibana
+  ansible.builtin.uri:
+    url: "http://{{ ansible_host }}:5601/api/saved_objects/index-pattern"
+    method: POST
+    body_format: json
+    headers:
+      Content-Type: application/json
+      kbn-xsrf: true
+    body:
+      attributes:
+        title: "test-*"
+        timeFieldName: "@timestamp"

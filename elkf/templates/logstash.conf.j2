@@ -27,6 +27,6 @@ filter {
 output {
   elasticsearch {
     hosts => "http://{{ containers.elastic.name }}:9200"
-    index => "test-%Y.%m.%d"
+    index => "test-%{+YYYY.MM.dd}"
   }
 }
