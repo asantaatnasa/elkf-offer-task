@@ -1,10 +1,4 @@
 ---
-# tasks file for ELKF
-# - name: Testing
-#   ansible.builtin.debug:
-#     var: "{{ item }}"
-#   with_dict: "{{ containers }}"
-
 - name: Ensure needed direcotries exists
   ansible.builtin.file:
     path: "{{ item.value }}"
@@ -12,17 +6,21 @@
     state: directory
   with_dict: "{{ config_files_basedirs }}"
 
-# TODO: set explicit permissions
 - name: Copy test.log file on system
   ansible.builtin.copy:
     src: test.log
     dest: /usr/share/filebeat/data/test.log
+    owner: root
+    group: root
+    mode: "0644"
 
-# TODO: set explicit permissions
 - name: Create ELKF stack config files from templates
   ansible.builtin.template:
     src: "{{ item.value.src }}"
     dest: "{{ item.value.dest }}"
+    owner: root
+    group: root
+    mode: "0644"
   with_dict: "{{ config_files_templates }}"
 
 - name: Create docker network for ELKF stack
@@ -42,22 +40,9 @@
   with_dict: "{{ containers }}"
 
 # TODO: fix this, better use some handler or test to ensure startup
-- name: Wait for startup (2 min)
+- name: Wait for startup (1 min)
   ansible.builtin.wait_for:
-    timeout: 120
-
-- name: POST set up index in kibana
-  ansible.builtin.uri:
-    url: "http://{{ ansible_host }}:5601/api/saved_objects/index-pattern"
-    method: POST
-    body_format: json
-    headers:
-      Content-Type: application/json
-      kbn-xsrf: true
-    body:
-      attributes:
-        title: "test-*"
-        timeFieldName: "@timestamp"
+    timeout: 60
 
 - name: POST import saved dashboard
   ansible.builtin.uri:
