@@ -15,7 +15,7 @@ filebeat.autodiscover:
               paths:
                 - /var/lib/docker/containers/${data.docker.container.id}/*.log
 
-{% if containers.filebeat.to_file is defined and to_file is sameas true %}
+{% if containers.filebeat.to_file is defined and containers.filebeat.to_file is sameas true %}
 output.file:
   path: '/usr/share/filebeat/logs'
 {% else %}

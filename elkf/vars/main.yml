@@ -7,6 +7,7 @@ docker_network_name: elastic
 config_files_basedirs:
   test_log: "/usr/share/filebeat/data/"
   filebeat: "/usr/share/filebeat/"
+  filebeat_logs: "/usr/share/filebeat/logs/"
   logstash_conf: "/usr/share/logstash/pipeline/"
   logstash_yml: "/usr/share/logstash/config/"
 
@@ -28,6 +29,7 @@ containers:
     volumes:
       - /usr/share/filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
       - /usr/share/filebeat/data/test.log:/usr/share/filebeat/data/test.log:ro
+      - /usr/share/filebeat/logs:/usr/share/filebeat/logs
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
     env:
