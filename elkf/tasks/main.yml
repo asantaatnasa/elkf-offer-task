@@ -39,14 +39,18 @@
     user: "{{ item.value.user | default(omit) }}"
   with_dict: "{{ containers }}"
 
-# TODO: fix this, better use some handler or test to ensure startup
-- name: Wait for startup (1 min)
-  ansible.builtin.wait_for:
-    timeout: 60
+- name: Waiting for kibana startup
+  ansible.builtin.uri:
+    url: "http://{{ (ansible_ssh_host|default(ansible_host))|default(inventory_hostname) }}:5601/api/status"
+    method: GET
+  register: _result
+  until: _result.status == 200 and _result.json.status.overall.state == 'green'
+  retries: 12 # 12 * 10 = 120s (2min)
+  delay: 10
 
 - name: POST import saved dashboard
   ansible.builtin.uri:
-    url: "http://{{ ansible_host }}:5601/api/kibana/dashboards/import"
+    url: "http://{{ (ansible_ssh_host|default(ansible_host))|default(inventory_hostname) }}:5601/api/kibana/dashboards/import"
     method: POST
     body_format: json
     headers:
